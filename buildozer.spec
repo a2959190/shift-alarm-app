@@ -11,11 +11,15 @@ android.permissions = VIBRATE,WAKE_LOCK,RECEIVE_BOOT_COMPLETED,POST_NOTIFICATION
 icon.filename = icon.png
 orientation = portrait
 fullscreen = 0
-android.minapi = 21
 android.api = 34
-android.ndk = 27c
-android.sdk = 34
+android.minapi = 21
+android.ndk = 27
+android.build_tools = 34.0.0
+android.accept_sdk_license = True
 android.enable_androidx = True
 android.java.source = 17
+log_level = 2
+
+[buildozer]
 log_level = 2
 warn_on_root = 0
