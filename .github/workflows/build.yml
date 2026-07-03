@@ -25,6 +25,8 @@ jobs:
         run: pip install buildozer Cython --quiet
 
       - name: 编译 APK
+        env:
+          JAVA_HOME: /usr/lib/jvm/temurin-17-jdk-amd64
         run: buildozer android debug
 
       - name: 上传 APK
