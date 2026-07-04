@@ -4,7 +4,7 @@ title = 排班闹钟
 package.name = shiftalarm
 package.domain = org.shiftalarm
 source.dir = .
-source.include_exts = py,png,jpg,kv,atlas,ttf
+source.include_exts = py,png,jpg,kv,atlas,ttf,ttc
 version = 0.1
 version.code = 1
 

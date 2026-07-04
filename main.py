@@ -22,9 +22,15 @@ import json
 import calendar
 from datetime import date, datetime
 
-# 注册中文字体（仅Windows需要，安卓使用系统默认字体）
+# 注册中文字体
 if os.name == 'nt':
+    # Windows: 使用系统微软雅黑
     LabelBase.register(name='ChineseFont', fn_regular='C:/Windows/Fonts/msyh.ttc')
+else:
+    # 安卓: 使用打包进去的文泉驿微米黑
+    font_path = os.path.join(os.path.dirname(__file__), 'chinese_font.ttc')
+    if os.path.exists(font_path):
+        LabelBase.register(name='ChineseFont', fn_regular=font_path)
 
 
 class ShiftCalendar(BoxLayout):
