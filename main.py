@@ -22,21 +22,9 @@ import json
 import calendar
 from datetime import date, datetime
 
-try:
-    from plyer import notification
-    HAS_PLYER = True
-except:
-    HAS_PLYER = False
-
 # 注册中文字体（仅Windows需要，安卓使用系统默认字体）
 if os.name == 'nt':
     LabelBase.register(name='ChineseFont', fn_regular='C:/Windows/Fonts/msyh.ttc')
-
-# 窗口背景色（深灰蓝，比默认黑色更柔和）
-Window.clearcolor = [0.12, 0.12, 0.15, 1]
-
-# 数据文件路径（跟 main.py 同目录）
-DATA_FILE = os.path.join(os.path.dirname(__file__), 'data.json')
 
 
 class ShiftCalendar(BoxLayout):
@@ -73,6 +61,10 @@ class ShiftCalendar(BoxLayout):
             '白班': '07:30',
             '晚班': '15:30',
         }
+        
+        # 数据文件：用 APP 私有目录（安卓兼容，可读写）
+        self.data_file = os.path.join(
+            App.get_running_app().user_data_dir, 'data.json')
         
         # 启动时读取之前保存的数据
         self._load_data()
@@ -458,18 +450,16 @@ class ShiftCalendar(BoxLayout):
         title = f'[闹钟] {day}号 {shift_type}'
         message = f'{shift_type}闹钟响了！现在是 {time_part}'
         
-        if HAS_PLYER:
-            # 用 plyer 弹系统通知（Windows右下角会冒泡）
-            try:
-                notification.notify(
-                    title=title,
-                    message=message,
-                    timeout=10,     # 显示10秒
-                )
-            except:
-                pass  # 通知失败也没关系
-        else:
-            # 没有 plyer，至少会在Kivy窗口打印出来
+        # 只在需要时导 plyer（安卓兼容：避免启动时载入 JNI 桥接）
+        try:
+            from plyer import notification
+            notification.notify(
+                title=title,
+                message=message,
+                timeout=10,
+            )
+        except Exception:
+            # 通知失败也没关系，至少打印出来
             print(f'[闹钟] {title} - {message}')
 
     def _cancel_alarms(self, instance):
@@ -539,8 +529,8 @@ class ShiftCalendar(BoxLayout):
 
     def _load_data(self):
         """启动时读取之前保存的数据"""
-        if os.path.exists(DATA_FILE):
-            with open(DATA_FILE, 'r', encoding='utf-8') as f:
+        if os.path.exists(self.data_file):
+            with open(self.data_file, 'r', encoding='utf-8') as f:
                 data = json.load(f)        # 把JSON文件读成字典
                 # data 大概长这样：
                 # {
@@ -558,7 +548,7 @@ class ShiftCalendar(BoxLayout):
             'alarm_times': self.alarm_times,
             'fired_dates': list(self.fired_dates),
         }
-        with open(DATA_FILE, 'w', encoding='utf-8') as f:
+        with open(self.data_file, 'w', encoding='utf-8') as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
 
     # ────────────── 设置闹钟时间 ──────────────
@@ -672,6 +662,8 @@ class ShiftAlarmApp(App):
     """APP入口"""
     def build(self):
         self.title = '排班闹钟'
+        # 设置窗口背景色（放 build 里，确保安卓窗口已就绪）
+        Window.clearcolor = [0.12, 0.12, 0.15, 1]
         return ShiftCalendar()
 
 
